@@ -1,7 +1,7 @@
 #!/bin/bash
-export AWS_REGION="eu-west-3"
-export REGION_AZ1="eu-west-3a"
-export REGION_AZ2="eu-west-3b"
+export AWS_REGION="eu-west-1"
+export REGION_AZ1="eu-west-1a"
+export REGION_AZ2="eu-west-1b"
 
 # Create a VPC
 VpcID=$(aws ec2 create-vpc --cidr-block 10.0.0.0/16 | jq -r .Vpc.VpcId)
