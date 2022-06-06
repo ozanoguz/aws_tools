@@ -16,7 +16,7 @@ aws ec2 create-tags --resources $SUBNET1ID --tags Key=Name,Value=EKSSubnet1
 SUBNET2ID=$(aws ec2 create-subnet --vpc-id $VpcID --cidr-block 10.0.2.0/24 --availability-zone $REGION_AZ2 | jq -r .Subnet.SubnetId)
 aws ec2 create-tags --resources $SUBNET2ID --tags Key=Name,Value=EKSSubnet2
 SUBNET3ID=$(aws ec2 create-subnet --vpc-id $VpcID --cidr-block 10.0.3.0/24 --availability-zone $REGION_AZ1 | jq -r .Subnet.SubnetId)
-aws ec2 create-tags --resources $SUBNET3ID --tags Key=Name,Value=PublicSubnet1
+aws ec2 create-tags --resources $SUBNET3ID --tags Key=Name,Value=FortiGateSubnet
 
 # Create Internet Gateway
 IgwID=$(aws ec2 create-internet-gateway | jq -r .InternetGateway.InternetGatewayId)
