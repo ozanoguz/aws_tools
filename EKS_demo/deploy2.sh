@@ -87,7 +87,7 @@ aws ec2 authorize-security-group-ingress --group-id $SGgroupID --protocol all --
 
 
 # Create your Cluster
-EKSdemoCluserRoleArn=$(aws iam get-role --role-name EKSdemoClusterRole | jq -r .Role.Arn)
+EKSdemoCluserRoleArn=$(aws iam get-role --role-name EKSdemoClusterRole-$1 | jq -r .Role.Arn)
 aws eks create-cluster \
    --region $AWS_REGION \
    --name EKSdemocluster-$1 \
