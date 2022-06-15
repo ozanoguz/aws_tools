@@ -92,7 +92,7 @@ aws eks create-cluster \
    --region $AWS_REGION \
    --name EKSdemocluster-$1 \
    --kubernetes-version 1.21 \
-   --role-arn $EKSdemoCluserRoleArn-$1 \
+   --role-arn $EKSdemoCluserRoleArn \
    --resources-vpc-config subnetIds=$(echo $SubnetID | sed -e 's/ /,/g'),securityGroupIds=$SGgroupID \
    --output text
 
@@ -112,7 +112,7 @@ aws eks create-nodegroup  \
 --cluster-name EKSdemocluster-$1 \
 --nodegroup-name EKSdemocluster-ng-$1 \
 --subnets $SubnetID \
---node-role $EKSdemoNodeRoleArn-$1 \
+--node-role $EKSdemoNodeRoleArn \
 --output text 
 
 echo "Creating Nodegroup. This can take up to 5min"
