@@ -75,9 +75,9 @@ cat  <<EOF >EKS_node_role_policy_doc.json
 EOF
 
 aws iam create-role --role-name EKSdemoNodeRole-$1  --assume-role-policy-document file://EKS_node_role_policy_doc.json --output text
-aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy --role-name EKSdemoNodeRole --output text
-aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly --role-name EKSdemoNodeRole --output text
-aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy --role-name EKSdemoNodeRole --output text
+aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy --role-name EKSdemoNodeRole-$1 --output text
+aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly --role-name EKSdemoNodeRole-$1 --output text
+aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy --role-name EKSdemoNodeRole-$1 --output text
 
 
 
@@ -90,15 +90,15 @@ aws ec2 authorize-security-group-ingress --group-id $SGgroupID --protocol all --
 EKSdemoCluserRoleArn=$(aws iam get-role --role-name EKSdemoClusterRole | jq -r .Role.Arn)
 aws eks create-cluster \
    --region $AWS_REGION \
-   --name EKSdemocluster \
+   --name EKSdemocluster-$1 \
    --kubernetes-version 1.21 \
-   --role-arn $EKSdemoCluserRoleArn \
+   --role-arn $EKSdemoCluserRoleArn-$1 \
    --resources-vpc-config subnetIds=$(echo $SubnetID | sed -e 's/ /,/g'),securityGroupIds=$SGgroupID \
    --output text
 
 echo "Creating EKS cluster. This can take up to 15min"
 
-while [ $(aws eks describe-cluster  --name EKSdemocluster --region $AWS_REGION| jq -r .cluster.status) != "ACTIVE" ]
+while [ $(aws eks describe-cluster  --name EKSdemocluster-$1 --region $AWS_REGION| jq -r .cluster.status) != "ACTIVE" ]
 do
    sleep 15; echo -n ".";
 done
@@ -107,16 +107,16 @@ echo -e "\n Completed"
 
 
 # Create a Nodegroup
-EKSdemoNodeRoleArn=$(aws iam get-role --role-name EKSdemoNodeRole | jq -r .Role.Arn)
+EKSdemoNodeRoleArn=$(aws iam get-role --role-name EKSdemoNodeRole-$1 | jq -r .Role.Arn)
 aws eks create-nodegroup  \
---cluster-name EKSdemocluster \
---nodegroup-name EKSdemocluster-ng \
+--cluster-name EKSdemocluster-$1 \
+--nodegroup-name EKSdemocluster-ng-$1 \
 --subnets $SubnetID \
---node-role $EKSdemoNodeRoleArn \
+--node-role $EKSdemoNodeRoleArn-$1 \
 --output text 
 
 echo "Creating Nodegroup. This can take up to 5min"
-while [ $(aws eks describe-nodegroup  --nodegroup-name EKSdemocluster-ng --cluster-name EKSdemocluster --region $AWS_REGION | jq -r .nodegroup.status) != "ACTIVE" ]
+while [ $(aws eks describe-nodegroup  --nodegroup-name EKSdemocluster-ng-$1 --cluster-name EKSdemocluster-$1 --region $AWS_REGION | jq -r .nodegroup.status) != "ACTIVE" ]
 do
    sleep 15; echo -n ".";
 done
@@ -124,7 +124,7 @@ echo -e "\n Completed"
 
 
 # Export kubeconfig 
-aws eks --region $AWS_REGION update-kubeconfig --name EKSdemocluster   --kubeconfig eksdemokubeconfig.yaml
+aws eks --region $AWS_REGION update-kubeconfig --name EKSdemocluster-$1   --kubeconfig eksdemokubeconfig.yaml
 
 # Check your nodes
 export KUBECONFIG=$PWD/eksdemokubeconfig.yaml
