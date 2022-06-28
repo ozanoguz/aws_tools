@@ -113,7 +113,7 @@ EKSdemoNodeRoleArn=$(aws iam get-role --role-name EKSdemoNodeRole-$1 | jq -r .Ro
 aws eks create-nodegroup  \
 --cluster-name EKSdemocluster-$1 \
 --nodegroup-name EKSdemocluster-ng-$1 \
---subnets $Subnet1ID, $Subnet2ID \
+--subnets $SUBNET1ID, $SUBNET2ID \
 --node-role $EKSdemoNodeRoleArn \
 --output text 
 
