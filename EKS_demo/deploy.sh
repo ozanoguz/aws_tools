@@ -8,15 +8,13 @@ VpcID=$(aws ec2 create-vpc --cidr-block 10.0.0.0/16 | jq -r .Vpc.VpcId)
 aws ec2 create-tags --resources $VpcID --tags Key=Name,Value=EKSdemo-$1
 
 
-# Create 2 (or more) subnets 
+# Create 2 (or more) subnets for EKS
 #    - public auto-assign
 #    - makes ure there is routing / igw 
 SUBNET1ID=$(aws ec2 create-subnet --vpc-id $VpcID --cidr-block 10.0.1.0/24 --availability-zone $REGION_AZ1 | jq -r .Subnet.SubnetId)
 aws ec2 create-tags --resources $SUBNET1ID --tags Key=Name,Value=EKSSubnet1-$1
 SUBNET2ID=$(aws ec2 create-subnet --vpc-id $VpcID --cidr-block 10.0.2.0/24 --availability-zone $REGION_AZ2 | jq -r .Subnet.SubnetId)
 aws ec2 create-tags --resources $SUBNET2ID --tags Key=Name,Value=EKSSubnet2-$1
-SUBNET3ID=$(aws ec2 create-subnet --vpc-id $VpcID --cidr-block 10.0.3.0/24 --availability-zone $REGION_AZ1 | jq -r .Subnet.SubnetId)
-aws ec2 create-tags --resources $SUBNET3ID --tags Key=Name,Value=FortiGateSubnet-$1
 
 # Create Internet Gateway
 IgwID=$(aws ec2 create-internet-gateway | jq -r .InternetGateway.InternetGatewayId)
@@ -122,6 +120,10 @@ do
 done
 echo -e "\n Completed"
 
+
+# Create FortiGate Subnet
+SUBNET3ID=$(aws ec2 create-subnet --vpc-id $VpcID --cidr-block 10.0.3.0/24 --availability-zone $REGION_AZ1 | jq -r .Subnet.SubnetId)
+aws ec2 create-tags --resources $SUBNET3ID --tags Key=Name,Value=FortiGateSubnet-$1
 
 # Export kubeconfig 
 aws eks --region $AWS_REGION update-kubeconfig --name EKSdemocluster-$1   --kubeconfig eksdemokubeconfig.yaml
